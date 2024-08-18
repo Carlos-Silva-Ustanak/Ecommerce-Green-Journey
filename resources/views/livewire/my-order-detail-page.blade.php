@@ -156,7 +156,14 @@
                             <tr wire:key="{{$item->id}}">
                                 <td class="py-4">
                                     <div class="flex items-center">
-                                        <img class="h-16 w-16 mr-4" src="{{url('storage', $item->product->images[0])}}" alt="Imagem do Produto">
+
+                                         @php
+                                        // Transform image URLs to S3 URL
+                                        $s3Url = config('filesystems.disks.s3.url');
+                                        $imageUrl = $item->product->images[0] ? $s3Url . '/' . str_replace('\\', '/', $item->product->images[0]) : '';
+                                    @endphp
+
+                                        <img class="h-16 w-16 mr-4" src="{{$imageUrl}}" alt="{{$item->name}}">
                                         <span class="font-semibold">{{$item->product->name}} </span>
                                     </div>
                                 </td>

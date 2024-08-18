@@ -26,7 +26,6 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -49,27 +48,25 @@ class ProductResource extends Resource
                                         }
                                         $set('slug', Str::slug($state));
                                     }),
-
+    
                                 TextInput::make('slug')
                                     ->maxLength(255)
                                     ->required()
                                     ->disabled()
                                     ->dehydrated()
                                     ->unique(Product::class, 'slug', ignoreRecord:true),
-
+    
                                 MarkdownEditor::make('description')
                                     ->columnSpanFull()
-                                    ->fileAttachmentsDirectory('products')
-
-
+                                    ->fileAttachmentsDirectory('products'),
                             ])->columns(2),
                         Section::make('Images')->schema([
                             FileUpload::make('images')
                                 ->multiple()
                                 ->directory('products')
+                                ->disk('s3') // Ensure this points to your S3 disk
                                 ->maxFiles(5)
                                 ->reorderable()
-
                         ])
                     ])->columnSpan(2),
                 Group::make()->schema([
@@ -85,31 +82,29 @@ class ProductResource extends Resource
                             ->searchable()
                             ->preload()
                             ->relationship('category', 'name'),
-
+    
                         Select::make('brand_id')
                             ->required()
                             ->searchable()
                             ->preload()
                             ->relationship('brand', 'name'),
-
                     ]),
                     Section::make()->schema([
                         Toggle::make('in_stock')
                             ->default(true)
                             ->required(),
-
+    
                         Toggle::make('is_active')
                             ->default(true)
                             ->required(),
-
+    
                         Toggle::make('is_featured')
                             ->default(false)
                             ->required(),
-
+    
                         Toggle::make('on_sale')
                             ->default(false)
                             ->required()
-
                     ])
                 ])->columnSpan(1)
             ])->columns(3);
@@ -120,54 +115,65 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                ->searchable(),
-
-               // \Filament\Tables\Columns\ImageColumn::make('images'),
-
+                    ->searchable(),
+    
                 Tables\Columns\TextColumn::make('category.name')
-                    ->numeric()
                     ->sortable(),
-
+    
                 Tables\Columns\TextColumn::make('brand.name')
-                    ->numeric()
                     ->sortable(),
-               
+    
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
-
+    
                 Tables\Columns\TextColumn::make('price')
                     ->money('BRL')
                     ->sortable(),
-
+    
+                Tables\Columns\TextColumn::make('weight')
+                    ->sortable()
+                    ->suffix('kg'),
+    
+                Tables\Columns\TextColumn::make('width')
+                    ->sortable()
+                    ->suffix('cm'),
+    
+                Tables\Columns\TextColumn::make('height')
+                    ->sortable()
+                    ->suffix('cm'),
+    
+                Tables\Columns\TextColumn::make('depth')
+                    ->sortable()
+                    ->suffix('cm'),
+    
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),
-
+    
                 Tables\Columns\IconColumn::make('is_featured')
                     ->boolean(),
-
+    
                 Tables\Columns\IconColumn::make('in_stock')
                     ->boolean(),
-
+    
                 Tables\Columns\IconColumn::make('on_sale')
                     ->boolean(),
-
+    
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
+    
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ]
-            )
+            ])
             ->filters([
                 SelectFilter::make('category')
-                ->relationship('category', 'name'), 
-
+                    ->relationship('category', 'name'),
+    
                 SelectFilter::make('brand')
-                ->relationship('brand', 'name'),
+                    ->relationship('brand', 'name'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([

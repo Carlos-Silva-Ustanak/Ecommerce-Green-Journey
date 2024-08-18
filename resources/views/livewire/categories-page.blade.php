@@ -7,7 +7,7 @@
                     href="/products?selected_categories[0]={{ $category->id }}" wire:key="{{ $category->id }}">
                     <div class="p-6">
                         <div class="flex items-center mb-4">
-                            <img class="h-20 w-20 object-cover rounded-md" src="{{ url('storage', $category->image) }}"
+                            <img class="h-20 w-20 object-cover rounded-md" src="{{$category->image }}"
                                 alt="{{ $category->name }}">
                             <div class="ms-4">
                                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 group-hover:text-green-600">

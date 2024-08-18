@@ -19,7 +19,7 @@
                         <tr wire:key="{{ $item['product_id'] }}">
                             <td class="py-4">
                                 <div class="flex items-center">
-                                    <img class="h-16 w-16 mr-4" src="{{ url('storage', $item['image']) }}" alt="{{ $item['name'] }}">
+                                    <img class="h-16 w-16 mr-4" src="{{  $item['image'] }}" alt="{{ $item['name'] }}">
                                     <span class="font-semibold truncate w-32 sm:w-auto text-gray-900 dark:text-gray-100">{{ $item['name'] }}</span>
                                 </div>
                             </td>

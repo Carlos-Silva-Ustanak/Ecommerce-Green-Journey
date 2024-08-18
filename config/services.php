@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'melhor_envio' => [
+        'api_key' => env('MELHOR_ENVIO_API_KEY'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

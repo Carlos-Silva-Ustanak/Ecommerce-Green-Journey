@@ -55,9 +55,12 @@ class CategoryResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(Category::class, 'slug', ignoreRecord: true),
-                                FileUpload::make('image')
-                                    ->image()
-                                    ->directory('categories'),
+                                    FileUpload::make('image')
+                                    ->disk('s3')
+                                    ->directory('categories') // Initial directory
+                                    ->preserveFilenames() // Optional
+                                    ->rules(['image', 'max:2048']), // Max 2MB
+                                
                                 Toggle::make('is_active')
                                     ->default(true)
                                     ->required()

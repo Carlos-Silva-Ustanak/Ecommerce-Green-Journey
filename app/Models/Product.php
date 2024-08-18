@@ -1,5 +1,7 @@
 <?php
 
+// app/Models/Product.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,42 +11,39 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        "category_id",
-        "brand_id",
-        "name",
-        "slug",
-        "images",
-        "description",
-        "price",
-        "is_active",
-        "is_featured",
-        "in_stock",
-        "on_sale"
+        'category_id',
+        'brand_id',
+        'name',
+        'slug',
+        'images',
+        'description',
+        'price',
+        'is_active',
+        'is_featured',
+        'in_stock',
+        'on_sale',    // Altura em centímetros
     ];
 
     protected $casts = [
-        "images" => "array"
+        'images' => 'array'
     ];
 
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function brand(){
+    public function brand()
+    {
         return $this->belongsTo(Brand::class);
     }
 
-    public function orderItems(){
+    public function orderItems()
+    {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function delete()
-    {
-        if (!empty($this->images)) {
-            Storage::disk('public')->delete($this->images);
-        }
-        parent::delete();
-    }
-
+  
 }

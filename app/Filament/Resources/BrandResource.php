@@ -6,7 +6,6 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Models\Brand;
 use Filament\Forms\Set;
-use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -23,14 +22,11 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\DeleteAction;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\BrandResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BrandResource\Pages\EditBrand;
 use App\Filament\Resources\BrandResource\Pages\ListBrands;
-use App\Filament\Resources\BrandResource\RelationManagers;
 use App\Filament\Resources\BrandResource\Pages\CreateBrand;
 
 class BrandResource extends Resource
@@ -42,6 +38,7 @@ class BrandResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -54,21 +51,24 @@ class BrandResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (String $operation, $state, Set $set) => $operation === 'create'
+                                    ->afterStateUpdated(fn(String $operation, $state, Set $set) => $operation === 'create'
                                         ? $set('slug', Str::slug($state)) : null),
                                 TextInput::make('slug')
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(Brand::class, 'slug', ignoreRecord: true),
                                 FileUpload::make('image')
-                                    ->image()
-                                    ->directory('brands'),
+                                    ->disk('s3')
+                                    ->directory('brands') // Initial directory
+                                    ->preserveFilenames() // Optional
+                                    ->rules(['image', 'max:2048']), // Max 2MB
+
+
                                 Toggle::make('is_active')
                                     ->default(true)
                                     ->required()
                             ])
                     ])
-
             ]);
     }
 
@@ -76,25 +76,24 @@ class BrandResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
-
-                Tables\Columns\TextColumn::make('slug')
+                ImageColumn::make('image'),
+                TextColumn::make('slug')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('is_active')
+                IconColumn::make('is_active')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Add filters if needed
             ])
             ->actions([
                 ActionGroup::make([
@@ -104,8 +103,8 @@ class BrandResource extends Resource
                 ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -113,7 +112,7 @@ class BrandResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Define relations if needed
         ];
     }
 

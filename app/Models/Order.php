@@ -8,18 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-    protected $fillable = 
-    ["user_id",
-    "grand_total",
-    "payment_method",
-    "payment_status",
-    "status",
-    "currency",
-    "shipping_amount",
-    "shipping_method",
-    "notes"
+    protected $fillable = [
+        "user_id",
+        "grand_total",
+        "payment_method",
+        "payment_status",
+        "status",
+        "currency",
+        "shipping_amount", // Certifique-se de que este campo está incluído
+        "shipping_method",
+        "notes"
     ];
-
     public function user(){
         return $this->belongsTo(User::class);
     }

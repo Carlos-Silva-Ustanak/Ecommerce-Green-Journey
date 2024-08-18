@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+/* document.addEventListener('DOMContentLoaded', () => {
     const darkMode = localStorage.getItem('darkMode') === 'true';
     const sunIcon = document.getElementById('sun-icon');
     const moonIcon = document.getElementById('moon-icon');
@@ -21,3 +21,5 @@ document.addEventListener('DOMContentLoaded', () => {
         moonIcon.classList.toggle('hidden', !isDark);
     });
 });
+ */
+

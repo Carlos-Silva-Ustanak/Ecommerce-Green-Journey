@@ -1,16 +1,16 @@
 <?php
-
 namespace App\Livewire;
 
+use Stripe\Stripe;
 use App\Models\Order;
 use App\Models\Address;
 use Livewire\Component;
+use App\Mail\OrderPlaced;
+use App\Models\OrderItem;
+use Stripe\Checkout\Session;
 use Livewire\Attributes\Title;
 use App\Helpers\CartManagement;
-use App\Mail\OrderPlaced;
 use Illuminate\Support\Facades\Mail;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
 
 #[Title('Checkout')]
 class CheckoutPage extends Component
@@ -35,12 +35,41 @@ class CheckoutPage extends Component
         'payment_method' => 'required',
     ];
 
-    public function mount(){
+    public function mount()
+    {
         $cart_items = CartManagement::getCartItemsFromCookies();
-        if(count($cart_items) == 0){
+        
+        if (count($cart_items) == 0) {
             return redirect('/products');
         }
-}
+        
+        // Retrieve order items including related products
+        $orderItems = OrderItem::with('product')->whereIn('product_id', array_column($cart_items, 'product_id'))->get();
+    
+        $s3Url = config('filesystems.disks.s3.url');
+        
+        // Map cart items to include product images
+        $updatedCartItems = [];
+        foreach ($cart_items as $item) {
+            $orderItem = $orderItems->where('product_id', $item['product_id'])->first();
+            if ($orderItem && $orderItem->product) {
+                // Check if images array is not empty and has at least one image
+                $images = $orderItem->product->images ?? [];
+                $imageUrl = !empty($images[0]) ? $s3Url . '/' . ltrim(str_replace('\\', '/', $images[0]), '/') : ''; // Construct the full URL
+                $item['images'] = [$imageUrl];
+            } else {
+                $item['images'] = []; // or a default image URL
+            }
+            $updatedCartItems[] = $item;
+        }
+        
+        $this->cart_items = $updatedCartItems;
+        $this->grand_total = CartManagement::calculateGrandTotal($this->cart_items);
+    }
+    
+    
+    
+
 
     public function placeOrder()
     {
@@ -57,7 +86,7 @@ class CheckoutPage extends Component
 
         $order->save();
         $order->items()->createMany($cart_items);
-        
+
         CartManagement::clearCartItems();
 
         Mail::to(request()->user())->send(new OrderPlaced($order));
@@ -90,8 +119,6 @@ class CheckoutPage extends Component
             'payment_status' => 'pending',
             'status' => 'new',
             'currency' => 'BRL',
-            'shipping_amount' => 0,
-            'shipping_method' => 'None',
             'notes' => 'Order placed by ' . auth()->user()->name,
         ]);
     }
@@ -114,7 +141,7 @@ class CheckoutPage extends Component
     {
         if ($this->payment_method === 'stripe') {
             Stripe::setApiKey(env('STRIPE_SECRET'));
-    
+
             $sessionCheckout = Session::create([
                 'payment_method_types' => ['card'],
                 'customer_email' => auth()->user()->email,
@@ -123,12 +150,13 @@ class CheckoutPage extends Component
                 'success_url' => route('success') . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('cancel'),
             ]);
-    
+
             return $sessionCheckout->url;
         }
-    
+
         return route('success');
     }
+
     
 
     public function render()
@@ -136,9 +164,12 @@ class CheckoutPage extends Component
         $cart_items = CartManagement::getCartItemsFromCookies();
         $grand_total = CartManagement::calculateGrandTotal($cart_items);
 
+        
+
         return view('livewire.checkout-page', [
             'cart_items' => $cart_items,
             'grand_total' => $grand_total,
+            
         ]);
     }
 }

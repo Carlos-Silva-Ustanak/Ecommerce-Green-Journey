@@ -92,7 +92,8 @@
                                 <div class="border border-gray-300 dark:border-gray-700 rounded-lg">
                                     <div class="relative bg-gray-200 dark:bg-gray-800">
                                         <a href="/products/{{ $product->slug }}">
-                                            <img src="{{ url('storage', $product->images[0]) }}" alt="{{ $product->name }}" class="object-cover w-full h-56 mx-auto">
+                                            <img src="{{$product->images[0] }}" alt="{{ $product->name }}" class="object-cover w-full h-56 mx-auto">
+
                                         </a>
                                     </div>
                                     <div class="p-3">
@@ -126,3 +127,4 @@
         </div>
     </section>
 </div>
+

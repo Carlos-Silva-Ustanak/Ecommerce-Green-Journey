@@ -42,13 +42,13 @@ class MyAccountPage extends Component
             // Verify the current password
             if (!Hash::check($this->current_password, $user->password)) {
                 // If current password is incorrect, throw an error
-                $this->addError('current_password', 'Current password is incorrect.');
+                $this->addError('current_password', 'Senha atual está incorreta.');
                 return;
             }
     
             // Check if the new password and confirmation match
             if ($this->new_password !== $this->new_password_confirmation) {
-                $this->addError('new_password', 'New password confirmation does not match.');
+                $this->addError('new_password', 'Senha de confirmação diferente.');
                 return;
             }
     
@@ -65,7 +65,7 @@ class MyAccountPage extends Component
         $user->save();
     
         // Flash success message
-        session()->flash('message', 'Profile updated successfully.');
+        session()->flash('message', 'Perfil atualizado com sucesso!.');
     }
     
 

@@ -7,10 +7,14 @@
     "require": {
         "php": "^8.2",
         "filament/filament": "^3.2",
+        "guzzlehttp/guzzle": "^7.9",
         "jantinnerezo/livewire-alert": "^3.0",
+        "jenssegers/mongodb": "^4.7",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
+        "league/flysystem-aws-s3-v3": "^3.28",
         "livewire/livewire": "^3.5",
+        "mongodb/mongodb": "^1.19",
         "stripe/stripe-php": "^15.6"
     },
     "require-dev": {
