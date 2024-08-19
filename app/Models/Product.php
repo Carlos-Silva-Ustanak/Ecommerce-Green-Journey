@@ -23,7 +23,11 @@ class Product extends Model
         'is_active',
         'is_featured',
         'in_stock',
-        'on_sale',    // Altura em centímetros
+        'on_sale',
+       // 'weight',
+        //'width',
+        //'height',
+        //'length',  // Altura em centímetros
     ];
 
     protected $casts = [
@@ -44,6 +48,4 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
-
-  
 }

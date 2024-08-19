@@ -12,7 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use PhpParser\Node\Expr\Cast\String_;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
@@ -42,29 +41,50 @@ class ProductResource extends Resource
                                     ->maxLength(255)
                                     ->required()
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(function (String $operation, $state, Set $set) {
+                                    ->afterStateUpdated(function (string $operation, $state, Set $set) {
                                         if ($operation !== 'create') {
                                             return;
                                         }
                                         $set('slug', Str::slug($state));
                                     }),
-    
+
                                 TextInput::make('slug')
                                     ->maxLength(255)
                                     ->required()
                                     ->disabled()
                                     ->dehydrated()
-                                    ->unique(Product::class, 'slug', ignoreRecord:true),
-    
+                                    ->unique(Product::class, 'slug', ignoreRecord: true),
+
                                 MarkdownEditor::make('description')
                                     ->columnSpanFull()
                                     ->fileAttachmentsDirectory('products'),
+
+                                TextInput::make('weight')
+                                    ->label('Peso (kg)')
+                                    ->numeric()
+                                    ->required(),
+
+                                TextInput::make('width')
+                                    ->label('Largura (cm)')
+                                    ->numeric()
+                                    ->required(),
+
+                                TextInput::make('height')
+                                    ->label('Altura (cm)')
+                                    ->numeric()
+                                    ->required(),
+
+                                TextInput::make('depth')
+                                    ->label('Profundidade (cm)')
+                                    ->numeric()
+                                    ->required(),
+
                             ])->columns(2),
                         Section::make('Images')->schema([
                             FileUpload::make('images')
                                 ->multiple()
                                 ->directory('products')
-                                ->disk('s3') // Ensure this points to your S3 disk
+                                ->disk('s3') // Certifique-se de que isso aponte para o disco S3 correto
                                 ->maxFiles(5)
                                 ->reorderable()
                         ])
@@ -82,7 +102,7 @@ class ProductResource extends Resource
                             ->searchable()
                             ->preload()
                             ->relationship('category', 'name'),
-    
+
                         Select::make('brand_id')
                             ->required()
                             ->searchable()
@@ -93,18 +113,18 @@ class ProductResource extends Resource
                         Toggle::make('in_stock')
                             ->default(true)
                             ->required(),
-    
+
                         Toggle::make('is_active')
                             ->default(true)
                             ->required(),
-    
+
                         Toggle::make('is_featured')
                             ->default(false)
                             ->required(),
-    
+
                         Toggle::make('on_sale')
                             ->default(false)
-                            ->required()
+                            ->required(),
                     ])
                 ])->columnSpan(1)
             ])->columns(3);
@@ -116,53 +136,53 @@ class ProductResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-    
+
                 Tables\Columns\TextColumn::make('category.name')
                     ->sortable(),
-    
+
                 Tables\Columns\TextColumn::make('brand.name')
                     ->sortable(),
-    
+
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
-    
+
                 Tables\Columns\TextColumn::make('price')
                     ->money('BRL')
                     ->sortable(),
-    
+
                 Tables\Columns\TextColumn::make('weight')
                     ->sortable()
                     ->suffix('kg'),
-    
+
                 Tables\Columns\TextColumn::make('width')
                     ->sortable()
                     ->suffix('cm'),
-    
+
                 Tables\Columns\TextColumn::make('height')
                     ->sortable()
                     ->suffix('cm'),
-    
+
                 Tables\Columns\TextColumn::make('depth')
                     ->sortable()
                     ->suffix('cm'),
-    
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),
-    
+
                 Tables\Columns\IconColumn::make('is_featured')
                     ->boolean(),
-    
+
                 Tables\Columns\IconColumn::make('in_stock')
                     ->boolean(),
-    
+
                 Tables\Columns\IconColumn::make('on_sale')
                     ->boolean(),
-    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-    
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -171,7 +191,7 @@ class ProductResource extends Resource
             ->filters([
                 SelectFilter::make('category')
                     ->relationship('category', 'name'),
-    
+
                 SelectFilter::make('brand')
                     ->relationship('brand', 'name'),
             ])
